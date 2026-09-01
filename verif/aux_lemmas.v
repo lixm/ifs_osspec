@@ -392,7 +392,7 @@ Qed.
 
 Lemma dr_sched:
   forall t rly guar, 
-    deduct_rules t get_hprio_in_dom rly guar flows_to obsr_equiv_data
+    deduct_rules t rly guar flows_to obsr_equiv_data
       (sched trivial_asrt) q_star. 
 Proof.
   intros.
@@ -404,7 +404,7 @@ Qed.
 
 Lemma dr_ssp:
   forall t vl, 
-    deduct_rules t get_hprio_in_dom (rly_tsk_env t) (guar_tsk_env t) flows_to
+    deduct_rules t (rly_tsk_env t) (guar_tsk_env t) flows_to
       obsr_equiv_data (spec_skip_step (|vl|)) q_star. 
 Proof.
   intros.

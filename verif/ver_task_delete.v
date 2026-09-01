@@ -915,7 +915,7 @@ Qed.
 Lemma dr_taskdel:
   forall vl t, 
     tl_vl_match (Tint8 :: nil) vl = true -> 
-    deduct_rules t get_hprio_in_dom (rly_tsk_env t) (guar_tsk_env t) flows_to obsr_equiv_data
+    deduct_rules t (rly_tsk_env t) (guar_tsk_env t) flows_to obsr_equiv_data
       (task_apispecs.taskdel vl) q_star. 
 Proof.
   introv Htvm.

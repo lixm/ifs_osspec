@@ -1294,7 +1294,7 @@ Qed.
 
 Lemma dr_qpost_before_schd:
   forall t a vl,
-    deduct_rules t get_hprio_in_dom (rly_tsk_env t) (guar_tsk_env t) flows_to obsr_equiv_data
+    deduct_rules t (rly_tsk_env t) (guar_tsk_env t) flows_to obsr_equiv_data
       (tsk_mq_same_dom (Vptr a :: vl) # qpost_before_sched [|Vptr a :: vl|]) 
       (qpost_before_schd_post (Vptr a :: vl)).
 Proof.
@@ -1423,7 +1423,7 @@ Qed.
 Lemma dr_qpost: 
   forall vl t, 
     tl_vl_match (Tptr Tvoid :: Tptr Tvoid :: nil) vl = true -> 
-    deduct_rules t get_hprio_in_dom (rly_tsk_env t) (guar_tsk_env t) flows_to
+    deduct_rules t (rly_tsk_env t) (guar_tsk_env t) flows_to
       obsr_equiv_data (mq_apispecs.qpost vl) q_star. 
 Proof.
   introv Htvm.

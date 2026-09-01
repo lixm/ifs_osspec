@@ -63,10 +63,10 @@ Definition pre2
       sdom O1 t td' /\ sdom O2 t td' /\ flt (TaskDom td') (TaskDom td) /\ dobeq (TaskDom td') O1 O2. 
 
 Inductive deduct_rules : 
-  tid -> ossched -> rg_t -> rg_t -> flows_to_t -> dt_obeq_t -> spec_code -> postasrt_t -> Prop := 
+  tid -> rg_t -> rg_t -> flows_to_t -> dt_obeq_t -> spec_code -> postasrt_t -> Prop := 
 
   prim_rule:
-    forall sd p q (step: osabstep) vl rly guar (dobeq: dt_obeq_t) (flt: flows_to_t) t,
+    forall p q (step: osabstep) vl rly guar (dobeq: dt_obeq_t) (flt: flows_to_t) t,
       stable_pre t p rly ->
       (* stable_post t q rly -> *)
       (forall O O' vl' ac,
@@ -87,35 +87,35 @@ Inductive deduct_rules :
           (~exists cid, ac2 = _TickAct cid) -> 
           (dobeq (TaskDom td) O1' O2' /\ ac1 = ac2 /\ vl1' = vl2') 
       ) -> 
-      deduct_rules t sd rly guar flt dobeq (spec_prim p vl step) q
+      deduct_rules t rly guar flt dobeq (spec_prim p vl step) q
 
 | seq_rule:
-  forall t sd rly guar dobeq flt s1 (vs2: vallist -> spec_code) q' q,
-    deduct_rules t sd rly guar flt dobeq s1 q' ->
+  forall t rly guar dobeq flt s1 (vs2: vallist -> spec_code) q' q,
+    deduct_rules t rly guar flt dobeq s1 q' ->
     (forall vl O s2,
         I O -> q' t vl O -> vs2 vl = s2 ->
-        (sat_stmt_post t O s2 q /\ deduct_rules t sd rly guar flt dobeq s2 q)) ->
-    deduct_rules t sd rly guar flt dobeq (spec_seq s1 vs2) q
+        (sat_stmt_post t O s2 q /\ deduct_rules t rly guar flt dobeq s2 q)) ->
+    deduct_rules t rly guar flt dobeq (spec_seq s1 vs2) q
 
 | dowh_rule:
-  forall t sd rly guar dobeq flt s (b: bool_expr) (q' q: postasrt_t), 
-    deduct_rules t sd rly guar flt dobeq s q' ->
+  forall t rly guar dobeq flt s (b: bool_expr) (q' q: postasrt_t), 
+    deduct_rules t rly guar flt dobeq s q' ->
     (forall O vl, I O -> q' t vl O -> b vl = true -> head_sat t O s) ->
     (forall O vl, I O -> q' t vl O -> b vl = false -> q t vl O) -> 
     (* stable_post t q rly -> *)
-    deduct_rules t sd rly guar flt dobeq (spec_dowh s b) q
+    deduct_rules t rly guar flt dobeq (spec_dowh s b) q
 
 | sched_rule:
-  forall t sd rly guar dobeq flt p (q: postasrt_t),
+  forall t rly guar dobeq flt p (q: postasrt_t),
     stable_pre t p rly ->
     (* stable_post t q rly ->  *)
     (forall O, pre1 t O p -> q t nil O) ->
-    deduct_rules t sd rly guar flt dobeq (sched p) q
+    deduct_rules t rly guar flt dobeq (sched p) q
   
 | end_rule:
-  forall t sd rly guar dobeq flt vl q,
+  forall t rly guar dobeq flt vl q,
     (* stable_post t q rly ->  *)
-    deduct_rules t sd rly guar flt dobeq (spec_done vl) q.  
+    deduct_rules t rly guar flt dobeq (spec_done vl) q.  
   
 
 Definition rg_env_t := tid -> rg_t. 
@@ -261,13 +261,13 @@ Inductive top_rule:
           aspc f = Some (acode, (tp, tl)) ->
           tl_vl_match tl vl = true ->
           ((forall O, I O -> head_sat t O (acode vl)) /\
-             (exists q, deduct_rules t sd (rly_tsk t) (guar_tsk t) flt dteq (acode vl) q)) 
+             (exists q, deduct_rules t (rly_tsk t) (guar_tsk t) flt dteq (acode vl) q)) 
       ) ->
       (
         forall i s t,
           ispc i = Some s ->
           ((forall O, I O -> head_sat t O s) /\
-             (exists q, deduct_rules t sd (rly_itp t) (guar_itp t) flt dteq s q)) 
+             (exists q, deduct_rules t (rly_itp t) (guar_itp t) flt dteq s q)) 
       ) ->
       top_rule rly_tsk guar_tsk rly_itp guar_itp flt dteq (* uprgs *) ospc. 
     

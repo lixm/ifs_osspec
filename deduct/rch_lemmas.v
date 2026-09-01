@@ -18,38 +18,38 @@ Fixpoint has_itp (ks: cont) :=
   | kevent _ _ _ => True
   end. 
 
-Definition good_stmt t sd (rly_tsk guar_tsk rly_itp guar_itp: rg_env_t) flt dteq O s ks :=  
+Definition good_stmt t (rly_tsk guar_tsk rly_itp guar_itp: rg_env_t) flt dteq O s ks :=  
     head_sat t O s /\
       exists q,
-      (has_itp ks /\ deduct_rules t sd (rly_itp t) (guar_itp t) flt dteq s q \/
-         ~has_itp ks /\ deduct_rules t sd (rly_tsk t) (guar_tsk t) flt dteq s q).  
+      (has_itp ks /\ deduct_rules t (rly_itp t) (guar_itp t) flt dteq s q \/
+         ~has_itp ks /\ deduct_rules t (rly_tsk t) (guar_tsk t) flt dteq s q).  
 
 Fixpoint good_cont
-  (t: tid) (sd: ossched) (rly_tsk guar_tsk rly_itp guar_itp: rg_env_t) flt dteq O ks := 
+  (t: tid) (rly_tsk guar_tsk rly_itp guar_itp: rg_env_t) flt dteq O ks := 
   match ks with
   | kstop => True
   | kenknl f strat ks' =>
-      good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks' 
+      good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks' 
   | kevent i c ks' =>
       match c with
       | cur_stmt s =>
-          good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks' /\ 
-            good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks'   
+          good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks' /\ 
+            good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks'   
       | cur_strat strat =>
-          good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks'   
+          good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks'   
       end
   end.
     
 Definition good_ctrl
-  (t: tid) (sd: ossched) (rly_tsk guar_tsk rly_itp guar_itp: rg_env_t) flt dteq O (C: code) :=
+  (t: tid) (rly_tsk guar_tsk rly_itp guar_itp: rg_env_t) flt dteq O (C: code) :=
   match C with
   | (c, ks) =>
       match c with
       | cur_stmt s =>
-          good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks /\
-            good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks
+          good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks /\
+            good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks
       | cur_strat strat =>
-          good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks
+          good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks
       end
   end.
 
@@ -80,8 +80,8 @@ Definition stable_stmt t s rly :=
     head_sat t O' s.
 
 Lemma rule_stable_stmt:
-  forall t sd rly guar flt dteq s q, 
-    deduct_rules t sd rly guar flt dteq s q ->
+  forall t rly guar flt dteq s q, 
+    deduct_rules t rly guar flt dteq s q ->
     stable_stmt t s rly.
 Proof.
   introv Hrule.
@@ -109,11 +109,11 @@ Proof.
 Qed. 
 
 Lemma good_stmt_guar_itp_preserved:
-  forall t t' sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O O' s ks, 
+  forall t t' rly_tsk guar_tsk rly_itp guar_itp flt dteq O O' s ks, 
     well_rg rly_tsk guar_tsk rly_itp guar_itp -> 
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks ->
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks ->
     guar_itp t' O O' -> 
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' s ks. 
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' s ks. 
 Proof.
   introv Hwrg Hgs Hg.
   unfold good_stmt in *.
@@ -139,9 +139,9 @@ Proof.
 Qed. 
 
 Lemma no_itp_in_cont_good_cont: 
-  forall t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks, 
+  forall t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks, 
     ~has_itp ks -> 
-    good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks.  
+    good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks.  
 Proof.
   induction ks; introv Hni.
   - simpl. auto.
@@ -151,11 +151,11 @@ Proof.
 Qed. 
 
 Lemma good_cont_guar_preserved:
-  forall ks t t' sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O O', 
+  forall ks t t' rly_tsk guar_tsk rly_itp guar_itp flt dteq O O', 
     well_rg rly_tsk guar_tsk rly_itp guar_itp -> 
-    good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks ->
+    good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks ->
     (~has_itp ks /\ guar_tsk t' O O' \/ has_itp ks /\ guar_itp t' O O') ->
-    good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' ks. 
+    good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' ks. 
 Proof.
   induction ks; introv Hwrg Hgc Hor.
   -
@@ -192,13 +192,13 @@ Qed.
 
 Lemma good_stmt_spec_step_preserved:
   forall t sd rly guar flt dteq s q, 
-    deduct_rules t sd rly guar flt dteq s q -> 
+    deduct_rules t rly guar flt dteq s q -> 
     forall O, 
       I O -> 
       sat_stmt_post t O s q ->    
       forall s' O' ac,  
         spec_step sd t s O s' O' ac ->
-        (deduct_rules t sd rly guar flt dteq s' q /\
+        (deduct_rules t rly guar flt dteq s' q /\
            I O' /\
            (* get O coretid = get O' coretid /\ *)
            sat_stmt_post t O' s' q /\
@@ -296,9 +296,9 @@ Lemma good_ctrl_knl_step_preserved:
     kspc = (aspc, ispc, sd) -> 
     I O ->
     (* valid_ct t O cid ->   *)
-    good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C ->
+    good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C ->
     hapistep kspc t C sst O C' sst' O' ac ->
-    (I O' /\ good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C' /\
+    (I O' /\ good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C' /\
        (* (get O coretid = get O' coretid) /\  *) 
        (has_itp (snd C) /\ guar_itp t O O' \/ ~has_itp (snd C) /\ guar_tsk t O O')). 
 Proof.
@@ -445,9 +445,9 @@ Lemma good_ctrl_task_step_preserved:
     kspc = (aspc, ispc, sd) -> 
     I O ->
     (* valid_ct t O cid ->   *)
-    good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C ->
+    good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C ->
     htstep kspc t C ust O C' ust' O' ac -> 
-    (I O' /\ good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C' /\
+    (I O' /\ good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C' /\
        (* (get O coretid = get O' coretid) /\  *)
        (has_itp (snd C) /\ guar_itp t O O' \/ ~has_itp (snd C) /\ guar_tsk t O O')). 
 Proof.
@@ -472,12 +472,12 @@ Proof.
 Qed. 
 
 Lemma good_stmt_guar_preserved_neqt:
-  forall t t' sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O O' s ks, 
+  forall t t' rly_tsk guar_tsk rly_itp guar_itp flt dteq O O' s ks, 
     well_rg rly_tsk guar_tsk rly_itp guar_itp -> 
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks ->
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks ->
     guar_itp t' O O' \/ guar_tsk t' O O' -> 
     t' <> t -> 
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' s ks. 
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' s ks. 
 Proof.
   introv Hwrg Hgs Hg Hneqt.
   unfold good_stmt in *.
@@ -507,12 +507,12 @@ Proof.
 Qed. 
 
 Lemma good_cont_guar_preserved_neqt:
-  forall ks t t' rly_tsk guar_tsk rly_itp guar_itp sd flt dteq O O', 
+  forall ks t t' rly_tsk guar_tsk rly_itp guar_itp flt dteq O O', 
     well_rg rly_tsk guar_tsk rly_itp guar_itp -> 
-    good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks -> 
+    good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks -> 
     guar_itp t' O O' \/ guar_tsk t' O O' -> 
     t' <> t -> 
-    good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' ks.
+    good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' ks.
 Proof.
   induction ks; introv Hwrg Hgc Hg Hneqt.
   -
@@ -532,12 +532,12 @@ Proof.
 Qed. 
 
 Lemma good_ctrl_guar_preserved_neqt: 
-  forall t t' sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O O' C, 
+  forall t t' rly_tsk guar_tsk rly_itp guar_itp flt dteq O O' C, 
     well_rg rly_tsk guar_tsk rly_itp guar_itp -> 
-    good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C -> 
+    good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C -> 
     guar_itp t' O O' \/ guar_tsk t' O O' -> 
     t' <> t -> 
-    good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C. 
+    good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C. 
 Proof.
   introv Hwrg Hgc Hguar Hneqt.
   unfold good_ctrl in *.
@@ -555,8 +555,8 @@ Proof.
 Qed.            
 
 Lemma good_stmt_tcre_neqt: 
-  forall t sd rly guar flt dteq cd q,
-    deduct_rules t sd rly guar flt dteq cd q ->
+  forall t rly guar flt dteq cd q,
+    deduct_rules t rly guar flt dteq cd q ->
     forall aspc O cd' O' t' fp argp, 
       head_sat t O cd ->
       I O -> 
@@ -592,11 +592,11 @@ Proof.
 Qed. 
 
 Lemma good_stmt_swi_preserved:
-  forall t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O O' s ks,
+  forall t rly_tsk guar_tsk rly_itp guar_itp flt dteq O O' s ks,
     (* well_sched aspc ispc sd I dteq sdom ->  *)
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks ->
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks ->
     swi_changes O O' ->     
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' s ks. 
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' s ks. 
 Proof.
   introv Hgstm Hswic.  
   inverts Hgstm.
@@ -617,11 +617,11 @@ Proof.
 Qed. 
 
 Lemma good_cont_swi_preserved:
-  forall ks t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O O',
+  forall ks t rly_tsk guar_tsk rly_itp guar_itp flt dteq O O',
     (* well_sched kspc I dteq sdom ->  *)
-    good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks ->
+    good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O ks ->
     swi_changes O O' ->     
-    good_cont t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' ks. 
+    good_cont t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' ks. 
 Proof.
   induction ks; introv Hgc Hswi.
   -
@@ -646,9 +646,9 @@ Lemma good_stmt_swi_exe_preserved:
     top_rule rly_tsk guar_tsk rly_itp guar_itp flt dteq (*uprgs*) kspc ->
     kspc = (aspc, ispc, sd) -> 
     I O -> 
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O (sched asrt;;> vs) ks -> 
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O (sched asrt;;> vs) ks -> 
     swi_changes O O' -> 
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' (vs nil) ks.  
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' (vs nil) ks.  
 Proof.
   introv Htr Hkspc Hinv Hgstm Hsw.
   subst kspc.
@@ -659,15 +659,15 @@ Proof.
   destruct Hor as [(Hhi & Hdr) | (Hni & Hdr)].
   -
     inverts Hdr.           
-    inverts H8.
+    inverts H7.
     assert (Hpre1: pre1 t O asrt).
     {
       unfolds. 
       split; auto.
     }
     assert (Hq': q' t nil O) by eauto.
-    specialize (H10 _ _ _ Hinv Hq' (eq_refl _)).
-    destruct H10 as (Hssp & Hdr_rem).
+    specialize (H9 _ _ _ Hinv Hq' (eq_refl _)).
+    destruct H9 as (Hssp & Hdr_rem).
     lets Hstable: rule_stable_stmt Hdr_rem.
     eapply ssp_hs in Hssp; eauto.    
     split.
@@ -675,15 +675,15 @@ Proof.
     + exists q. left; split; auto.
   -
     inverts Hdr.           
-    inverts H8.
+    inverts H7.
     assert (Hpre1: pre1 t O asrt).
     {
       unfolds. 
       split; auto.
     }
     assert (Hq': q' t nil O) by eauto.
-    specialize (H10 _ _ _ Hinv Hq' (eq_refl _)).
-    destruct H10 as (Hssp & Hdr_rem).
+    specialize (H9 _ _ _ Hinv Hq' (eq_refl _)).
+    destruct H9 as (Hssp & Hdr_rem).
     lets Hstable: rule_stable_stmt Hdr_rem.
     eapply ssp_hs in Hssp; eauto.    
     split.
@@ -696,10 +696,10 @@ Lemma good_ctrl_sys_step_preserved:
     top_rule rly_tsk guar_tsk rly_itp guar_itp flt dteq (*uprgs*) kspc ->
     kspc = (aspc, ispc, sd) ->
     I O ->
-    (forall t C, T t = Some C -> good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C) ->
+    (forall t C, T t = Some C -> good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C) ->
     hpstep uprgs kspc T ust O T' ust' O' (act, t) ->
     (I O' /\ 
-       (forall t C, T' t = Some C -> good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C)).   
+       (forall t C, T' t = Some C -> good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C)).   
 Proof.
   introv Htr Hkspc Hinv Hgc Hstep.
   inverts Hstep.

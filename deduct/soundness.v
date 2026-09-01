@@ -380,12 +380,12 @@ Lemma inv_good_ctrl_hpstepstar_preserved:
       I O -> 
       (forall t C,
           T t = Some C ->
-          good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C) ->     
+          good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C) ->     
       cfg' = (T', ust', O') -> 
       (I O' /\
          (forall t C,
              T' t = Some C -> 
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C)).  
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O' C)).  
 Proof. 
   introv Hkspc Htr Hsteps.
   induction Hsteps; introv Hcfg Hinv Hgctrl Hcfg'.
@@ -411,7 +411,7 @@ Lemma rch_good_ctrl:
     reachable uprgs kspc init cfg ->  
     cfg = (T, ust, O) -> 
     I O /\ 
-      (forall t C, T t = Some C -> good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C).  
+      (forall t C, T t = Some C -> good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C).  
 Proof.
   introv Htr Hkspc Hgini Hrc Hcfg.
   unfold reachable in Hrc.
@@ -513,7 +513,7 @@ Qed.
 Lemma sdom_tsks_spec_step_preserved:
   forall t (* aspc ispc *) sd rly guar flt dteq s q, 
     (* well_sched aspc ispc sd I dteq sdom -> *)
-    deduct_rules t sd rly guar flt dteq s q -> 
+    deduct_rules t rly guar flt dteq s q -> 
     forall O, 
       I O -> 
       head_sat t O s ->
@@ -544,7 +544,7 @@ Qed.
 
 Lemma good_stmt_spec_step_same_dom:
   forall t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks s' O' ac, 
-    good_stmt t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks ->
+    good_stmt t rly_tsk guar_tsk rly_itp guar_itp flt dteq O s ks ->
     I O -> 
     spec_step sd t s O s' O' ac ->
     (forall t td, sdom O t td <-> sdom O' t td). 
@@ -633,10 +633,10 @@ Lemma ticks_preserve_dteq_task_dom:
          (Hsuc2 : forall (t : tid) (C : code), T2 t = Some C -> ctrl_succ_eq aspc ispc C)
          (Hgctrl1 : forall (t : tid) (C : code),
              T1 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
          (Hgctrl2 : forall (t : tid) (C : code),
              T2 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C)
          (Hflt : flt d1' (TaskDom i)), 
 
     prog_equiv i T1' T2' O1' O2' /\
@@ -802,8 +802,8 @@ Qed.
 
 Lemma spec_steps_preserve_same_cur_dom:
   forall t1 t2 sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 s1 ks1 O2 s2 ks2 s1' s2' O1' O2' ac cid, 
-    good_stmt t1 sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 s1 ks1 ->
-    good_stmt t2 sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 s2 ks2 ->
+    good_stmt t1 rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 s1 ks1 ->
+    good_stmt t2 rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 s2 ks2 ->
     I O1 -> I O2 -> 
     spec_step sd t1 s1 O1 s1' O1' ac ->
     spec_step sd t2 s2 O2 s2' O2' ac ->
@@ -877,12 +877,12 @@ Lemma ticks_preserve_dteq_sched_dom:
          (Hinv1 : I O1)
          (Hgctrl1 : forall (t : tid) (C : code),
              T1 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
          (Hsuc1 : forall (t : tid) (C : code), T1 t = Some C -> ctrl_succ_eq aspc ispc C)
          (Hinv2 : I O2)
          (Hgctrl2 : forall (t : tid) (C : code),
              T2 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C)
          (Hsuc2 : forall (t : tid) (C : code), T2 t = Some C -> ctrl_succ_eq aspc ispc C), 
     same_cdom O1' O2' /\ same_td_for_ct O1' O2' /\ dteq SchedDom O1' O2'. 
 
@@ -986,11 +986,11 @@ Lemma scheds_preserve_dteq_task_dom:
          (Hinv1 : I O1)
          (Hgctrl1 : forall (t : tid) (C : code),
              T1 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
          (Hinv2 : I O2)
          (Hgctrl2 : forall (t : tid) (C : code),
              T2 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C), 
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C), 
     
     prog_equiv i T1' T2' O1' O2' /\
       ust_equiv i ust1' ust2' /\ 
@@ -1222,11 +1222,11 @@ Lemma scheds_preserve_dteq_sched_dom:
          (Hinv1 : I O1)
          (Hgctrl1 : forall (t : tid) (C : code),
              T1 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
          (Hinv2 : I O2)
          (Hgctrl2 : forall (t : tid) (C : code),
              T2 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C), 
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C), 
     same_cdom O1' O2' /\ same_td_for_ct O1' O2' /\ dteq SchedDom O1' O2'.  
 Proof.
   intros.
@@ -1492,7 +1492,7 @@ Lemma good_ctrl_hpstep_ctid_dom_preserved:
     I O -> 
     (forall (t : tid) (C : code),
         T t = Some C ->
-        good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C) -> 
+        good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C) -> 
     (* good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp I sdom flt dteq O C -> *)
     hpstep uprgs (aspc, ispc, sd) T ust O T' ust' O' (ac, t) ->
     (~exists cid, ac = SwAct cid) -> 
@@ -1561,7 +1561,7 @@ Lemma good_ctrl_hpstep_scd_ctideq:
     I O -> 
     (forall (t : tid) (C : code),
         T t = Some C ->
-        good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C) ->  
+        good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C) ->  
     hpstep uprgs (aspc, ispc, sd) T ust O T' ust' O' (ac, t) ->
     (~exists cid, ac = SwAct cid) -> 
     (same_td_for_ct O O' /\ (forall td, ctid_equiv td O O')). 
@@ -1643,10 +1643,10 @@ Lemma hpstep2_not_sched_ctid_equiv_preserved:
          (Hoe_d : obsr_equiv (TaskDom i) dteq (T1, ust1, O1) (T2, ust2, O2))
          (Hgctrl1 : forall (t : tid) (C : code),
              T1 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
          (Hgctrl2 : forall (t : tid) (C : code), 
              T2 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C)
          (Hnschac : ~ sched_act ac)
          (Hinv1 : I O1)
          (Hinv2 : I O2) 
@@ -1700,7 +1700,7 @@ Qed.
 
 Lemma spec_step2_dteq_preserved: 
   forall t sd rly guar flt dteq s q, 
-    deduct_rules t sd rly guar flt dteq s q ->    
+    deduct_rules t rly guar flt dteq s q ->    
     (* good_flt flt ->  *)
     forall O1 O2 O1' O2' td i s1' s2' ac1 ac2, 
       I O1 ->
@@ -1852,13 +1852,13 @@ Lemma task_steps_preserve_dteq:
          (Hinv1 : I O1)
          (Hgctrl1 : forall (t : tid) (C : code),
              T1 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O1 C)
          (* (Hcc1 : ct_core O1) *)
          (Hsuc1 : forall (t : tid) (C : code), T1 t = Some C -> ctrl_succ_eq aspc ispc C)
          (Hinv2 : I O2)
          (Hgctrl2 : forall (t : tid) (C : code),
              T2 t = Some C ->
-             good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C)
+             good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O2 C)
          (* (Hcc2 : ct_core O2) *) 
          (Hsuc2 : forall (t : tid) (C : code), T2 t = Some C -> ctrl_succ_eq aspc ispc C)
          (Hflt : flt d1' d)
@@ -2020,7 +2020,7 @@ Proof.
     lets Hgstmt2: proj1 Hgctr2.
     assert (Hrule_cases:
              head_sat t O1 s /\ head_sat t O2 s /\
-               exists q rly guar, deduct_rules t sd rly guar flt dteq s q). 
+               exists q rly guar, deduct_rules t rly guar flt dteq s q). 
     {
       assert (~has_itp ks \/ has_itp ks) by tauto.
       unfold good_stmt in Hgstmt1, Hgstmt2.
@@ -2137,7 +2137,7 @@ Qed.
 
 Lemma spec_step_dteq:
   forall t sd rly guar flt dteq s q, 
-    deduct_rules t sd rly guar flt dteq s q ->
+    deduct_rules t rly guar flt dteq s q ->
     good_dteq dteq -> 
     forall i d s' O O' ac_, 
       spec_step sd t s O s' O' ac_ ->
@@ -2181,7 +2181,7 @@ Qed.
 
 Lemma spec_step_tcre_sdom:
   forall t sd rly guar flt dteq s q, 
-    deduct_rules t sd rly guar flt dteq s q ->
+    deduct_rules t rly guar flt dteq s q ->
     forall s' O O' t' f arg td, 
       I O ->
       head_sat t O s -> 
@@ -2212,7 +2212,7 @@ Qed.
 
 Lemma spec_step_ntck_same_cdom:
   forall t sd rly guar flt dteq s q, 
-    deduct_rules t sd rly guar flt dteq s q ->
+    deduct_rules t rly guar flt dteq s q ->
     forall s' O O' ac, 
       I O ->
       head_sat t O s -> 
@@ -2251,7 +2251,7 @@ Lemma nflt_hpstep_d_obsr_equiv:
          (Hnflt : ~ flt (TaskDom i) d)
          (Hinv : I O)
          (Hgctrl : forall (t : tid) (C : code),
-             T t = Some C -> good_ctrl t sd rly_tsk guar_tsk rly_itp guar_itp flt dteq O C), 
+             T t = Some C -> good_ctrl t rly_tsk guar_tsk rly_itp guar_itp flt dteq O C), 
     obsr_equiv d dteq (T, ust, O) (T', ust', O'). 
 Proof.
   intros. 
@@ -2373,7 +2373,7 @@ Proof.
     assert (Hgctrl__:=Hgctrl).
     specialize (Hgctrl _ _ HTt).
     destruct Hgctrl as (Hgstmt & Hgcont).
-    assert (Hrule: head_sat t O s /\ exists q rly guar, deduct_rules t sd rly guar flt dteq s q).
+    assert (Hrule: head_sat t O s /\ exists q rly guar, deduct_rules t rly guar flt dteq s q).
     {
       destruct Hgstmt as (Hhs & Hex).
       destruct Hex as (q & Hor).

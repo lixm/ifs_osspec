@@ -1130,7 +1130,7 @@ intros.
 Lemma dr_taskcre:
   forall vl t, 
     tl_vl_match (Tptr Tvoid :: Tptr Tvoid :: Tint8 :: nil) vl = true ->
-    deduct_rules t get_hprio_in_dom (rly_tsk_env t) (guar_tsk_env t) flows_to
+    deduct_rules t (rly_tsk_env t) (guar_tsk_env t) flows_to
       obsr_equiv_data (task_apispecs.taskcre vl) q_star. 
 Proof.
   introv Htvm.

@@ -728,7 +728,7 @@ Qed.
 
 Lemma dr_tick_handler: 
   forall t, 
-  deduct_rules t get_hprio_in_dom (rly_itp_env t) (guar_itp_env t) flows_to
+  deduct_rules t (rly_itp_env t) (guar_itp_env t) flows_to
     obsr_equiv_data tickisr q_star. 
 Proof.
   intros.

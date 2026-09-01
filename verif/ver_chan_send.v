@@ -953,7 +953,7 @@ Qed.
 Lemma dr_chansend: 
   forall vl t, 
     tl_vl_match (Tint8 :: Tptr Tvoid :: nil) vl = true -> 
-    deduct_rules t get_hprio_in_dom (rly_tsk_env t) (guar_tsk_env t) flows_to
+    deduct_rules t (rly_tsk_env t) (guar_tsk_env t) flows_to
       obsr_equiv_data (chan_apispecs.chan_send vl) q_star. 
 Proof.
   introv Htvm.
