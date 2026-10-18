@@ -2227,10 +2227,8 @@ Proof.
     { unfolds. split; auto. }
     inverts Hstep.
     specializes H1; eauto.
-    (* simpljoin. *)
-    (* unfolds. *)
-    (* intros. *)
-    (* eapply H5; eauto. *)
+    unfolds; intros.
+    eapply H14; eauto. 
   -
     inverts Hstep; eapply IHHdr; eauto.
   -

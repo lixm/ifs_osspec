@@ -117,5 +117,5 @@ Definition tickisr_spec (t: tid) (vl: vallist) (O : osabst) (ac: sem_act) (rst :
               O' = set O__ domtimeid (domtime (set dtmp cid dt')) /\ vl' = nil 
   end.
 
-Definition tickisr : spec_code := tickisr_spec (|nil|);; sched trivial_asrt.  
+Definition tickisr : spec_code := tickisr_spec (|nil|);; sched trivial_asrt;; spec_done nil.  
   

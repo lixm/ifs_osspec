@@ -53,7 +53,9 @@ Inductive spec_step `{State}:
   forall sc t O O' (step:osabstep) vl vl' act asrt,
     step t vl O act (vl', O') ->
     (forall cid t, cur_tsk O cid t <-> cur_tsk O' cid t) -> 
-    (forall cid td, cur_dom O cid td <-> cur_dom O' cid td) -> 
+    (forall cid,
+        act <> _TickAct cid -> 
+        forall td, cur_dom O cid td <-> cur_dom O' cid td) -> 
     (* the above condition can be examined in a refinement verification *) 
     spec_step sc t (spec_prim asrt vl step) O (spec_done vl') O' act
 

@@ -776,7 +776,15 @@ Proof.
     subst s2.
     split.
     + simpl. unfolds. auto.
-    + apply dr_sched.
+    + constructors.
+      *
+        eapply dr_sched; eauto.
+      *
+        introv Hinv_ Hqs Hend.
+        subst s2.
+        split.
+        ** apply ssp_end.
+        ** constructors. 
 Qed.   
 
   

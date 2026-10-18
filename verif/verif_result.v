@@ -634,6 +634,8 @@ Proof.
   intros.
   unfold tickisr, has_tick' in *.
   destruct Htck; simpljoin; tryfalse. 
+  2: { destruct H; simpljoin; tryfalse. }
+    
   unfold tickisr_spec in *.
   
   destruct H as (tls & qls & ctid & dtmp & dt & cdmp & cd & cid_ & Hgct &

@@ -1349,6 +1349,10 @@ Proof.
   intros.
   unfold tickisr, has_tick' in *.
   destruct Htck1; destruct Htck2; simpljoin; tryfalse.
+  2: destruct H0; simpljoin; tryfalse.
+  2: destruct H; simpljoin; tryfalse.
+  2: destruct H; simpljoin; tryfalse. 
+  
   unfold tickisr_spec in *.
   
   destruct H as (tls1 & qls1 & ctid1 & dtmp1 & dt1 & cdmp1 & cd1 & cid1 & Hgct1 &
@@ -1588,6 +1592,10 @@ Proof.
   intros.
   unfold tickisr, has_tick' in *.
   destruct Htck1; destruct Htck2; simpljoin; tryfalse.
+  2: { destruct H0; simpljoin; tryfalse. }
+  2: { destruct H; simpljoin; tryfalse. }
+  2: { destruct H; simpljoin; tryfalse. } 
+
   unfold tickisr_spec in *.
   
   destruct H as (tls1 & qls1 & ctid1 & dtmp1 & dt1 & cdmp1 & cd1 & cid1 & Hgct1 &
@@ -1698,6 +1706,10 @@ Proof.
   intros.
   unfold tickisr, has_tick' in *.
   destruct Htck1; destruct Htck2; simpljoin; tryfalse.
+  2: { destruct H0; simpljoin; tryfalse. }
+  2: { destruct H; simpljoin; tryfalse. }
+  2: { destruct H0; simpljoin; tryfalse. }
+
   unfold tickisr_spec in *.
   
   destruct H as (tls1 & qls1 & ctid1 & dtmp1 & dt1 & cdmp1 & cd1 & cid1 & Hgct1 &
@@ -1777,6 +1789,3 @@ Proof.
     rewrite oe_sch_cd_eq.
     tauto.
 Qed. 
-
-
-
